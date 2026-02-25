@@ -1,0 +1,7 @@
+# Zigbee2MQTT Device Configurations
+# This file will be automatically populated as you pair devices.
+# You can also manually add configurations here.
+# Format:
+# '0x0017880104e08eea':
+#   friendly_name: 'my_device'
+

@@ -1,0 +1,68 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ${MOSQUITTO_CONFIG_DIR:-./mosquitto/config}:/mosquitto/config
+      - ${MOSQUITTO_DATA_DIR:-./mosquitto/data}:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=${TZ:-America/Toronto}
+    networks:
+      - zigbee-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "$$SYS/broker/uptime"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    mem_limit: 512m
+    cpus: 0.5
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - ${DATA_DIR:-./zigbee2mqtt/data}:/app/data
+      - ${CONFIG_DIR:-./zigbee2mqtt/config}:/app/config
+      - /run/dbus:/run/dbus:ro
+    ports:
+      - "${Z2M_UI_PORT:-8080}:8080"
+    environment:
+      - TZ=${TZ:-America/Toronto}
+      - ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC=${MQTT_BASE_TOPIC:-zigbee2mqtt}
+      - ZIGBEE2MQTT_CONFIG_MQTT_SERVER=${MQTT_SERVER:-mqtt://mosquitto:1883}
+      - ZIGBEE2MQTT_CONFIG_SERIAL_PORT=${Z2M_SERIAL_PORT:-tcp://slzb-mrw10u.local:6053}
+      - ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER=${Z2M_ADAPTER:-ezsp}
+      - ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE=${Z2M_BAUDRATE:-115200}
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_CHANNEL=${Z2M_CHANNEL:-11}
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_PAN_ID=${Z2M_PAN_ID:-6754}
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_EXT_PAN_ID=${Z2M_EXT_PAN_ID:-[221,221,221,221,221,221,221,221]}
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_TRANSMIT_POWER=${Z2M_TRANSMIT_POWER:-5}
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL=${Z2M_LOG_LEVEL:-info}
+      - ZIGBEE2MQTT_CONFIG_PERMIT_JOIN=${Z2M_PERMIT_JOIN:-true}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - zigbee-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 1024m
+    cpus: 1.0
+
+
+
+networks:
+  zigbee-network:
+    driver: bridge
+

@@ -1,0 +1,70 @@
+homeassistant: false
+permit_join: true
+
+mqtt:
+  base_topic: zigbee2mqtt
+  server: 'mqtt://mosquitto:1883'
+  # user and password removed for passwordless operation
+  version: 4
+  client_id: zigbee2mqtt
+  keepalive: 60
+  reject_unauthorized: false
+
+serial:
+  # SLZB-MRW10U uses Silicon Labs EFR32 chip with EZSP protocol over TCP
+  # This adapter communicates over network via mDNS address
+  port: 'tcp://slzb-mrw10u.local:6053'
+  baudrate: 115200
+
+# Advanced configuration for SMLIGHT SLZB-MRW10U
+advanced:
+  # Channel: Use 11 for North America, or change as needed for your region
+  channel: 11
+
+  # PAN ID - Random value for the personal area network
+  pan_id: 6754
+
+  # Extended PAN ID for IEEE 802.15.4 addressing
+  ext_pan_id: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd]
+
+  # Transmit power in dBm
+  transmit_power: 5
+
+  # Logging level
+  log_level: info
+
+  # Database - stores device information
+  database_path: /app/data/database.db
+
+  # Network key for Zigbee network security
+  network_key: [1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 13]
+
+  # Cache devices in memory for faster device queries
+  cache_enabled: true
+
+# Device-specific settings
+devices: !include devices.yaml
+
+# OTA (Over The Air) updates for devices
+ota:
+  enabled: true
+  directory: /app/data/ota
+
+# Frontend UI configuration
+frontend:
+  port: 8080
+  ssl: false
+
+# Enable these features as needed
+experimental:
+  new_api: false
+
+availability: true
+
+# Unix socket or TCP adapters
+adapter: ezsp
+
+# Ensure the adapter is set correctly for SLZB-MRW10U
+# Valid options: 'ezsp' (Silicon Labs), 'ember', 'deconz', 'zigate', 'zboss'
+# SLZB-MRW10U uses Silicon Labs EFR32, so 'ezsp' is correct
+
