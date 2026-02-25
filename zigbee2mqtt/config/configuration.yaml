@@ -1,8 +1,10 @@
 # Zigbee2MQTT Minimized Configuration
 # Infrastructure settings (MQTT, Serial, Channel, etc.) are handled via .env and Docker Compose
 
-homeassistant: true
+homeassistant:
+  enabled: true
 permit_join: false
+
 
 # Device-specific settings
 devices: !include devices.yaml
