@@ -1,48 +1,17 @@
+# Zigbee2MQTT Minimized Configuration
+# Infrastructure settings (MQTT, Serial, Channel, etc.) are handled via .env and Docker Compose
+
+homeassistant: true
 permit_join: false
-
-mqtt:
-  base_topic: zigbee2mqtt
-  server: 'mqtt://mosquitto:1883'
-  version: 4
-  client_id: zigbee2mqtt
-  keepalive: 60
-  reject_unauthorized: false
-
-serial:
-  # SLZB-MRW10U uses Silicon Labs EFR32 chip with EZSP protocol over TCP
-
-  port: 'tcp://slzb-mrw10u.local:6053'
-  baudrate: 115200
-
-# Advanced configuration for SMLIGHT SLZB-MRW10U
-advanced:
-  # Channel: Use 11 for North America, or change as needed for your region
-  channel: 11
-
-  # Network key for Zigbee network security
-  network_key: GENERATE
-  # PAN ID - Random value for the personal area network
-  pan_id: GENERATE
-
-  # Extended PAN ID for IEEE 802.15.4 addressing
-  ext_pan_id: GENERATE
-
-  # Transmit power in dBm
-  transmit_power: 5
-
-  # Logging level
-  log_level: info
-
-  # Database - stores device information
-  database_path: /app/data/database.db
-
-
-
-  # Cache devices in memory for faster device queries
-  cache_enabled: true
 
 # Device-specific settings
 devices: !include devices.yaml
+
+# Advanced settings
+advanced:
+  # Database stores device information
+  database_path: /app/data/database.db
+  cache_enabled: true
 
 # OTA (Over The Air) updates for devices
 ota:
@@ -54,31 +23,4 @@ frontend:
   port: 8080
   ssl: false
 
-# Enable these features as needed
-experimental:
-  new_api: false
-
 availability: true
-
-# Unix socket or TCP adapters
-adapter: ezsp
-
-# Ensure the adapter is set correctly for SLZB-MRW10U
-# Valid options: 'ezsp' (Silicon Labs), 'ember', 'deconz', 'zigate', 'zboss'
-# SLZB-MRW10U uses Silicon Labs EFR32, so 'ezsp' is correct
-
-homeassistant:
-  enabled: true
-  # Optional: Home Assistant discovery topic (default: shown below)
-  # Note: should be different from [MQTT base topic](../mqtt.md) to prevent errors in HA software
-  discovery_topic: 'homeassistant'
-  # Optional: Home Assistant status topic (default: shown below)
-  status_topic: 'homeassistant/status'
-  # Optional: Experimental support for Home Assistant event entities, may break in the future (default: shown below) when enabled:
-  # - An `event` entity will be discovered for each 'action'.
-  # - The `event_type` attribute will contain the action itself, additional attributes like `button` will have further information.
-  experimental_event_entities: false
-  # Optional: Home Assistant legacy action sensor (default: `false`), when enabled:
-  # - Zigbee2MQTT will send an empty 'action' after one has been send
-  # - A 'sensor_action' will be discovered
-  legacy_action_sensor: false

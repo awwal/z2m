@@ -12,6 +12,8 @@ touch mosquitto/config/mosquitto.conf
 touch zigbee2mqtt/config/configuration.yaml
 touch zigbee2mqtt/config/devices.yaml
 
+cp .env.example .env
+
 echo "✓ Directories and files prepared"
 
 echo "
