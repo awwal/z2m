@@ -10,18 +10,27 @@ services:
       - ${MOSQUITTO_CONFIG_DIR:-./mosquitto/config}:/mosquitto/config
       - ${MOSQUITTO_DATA_DIR:-./mosquitto/data}:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     environment:
       - TZ=${TZ:-America/Toronto}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     networks:
       - zigbee-network
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "$$SYS/broker/uptime"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      test: ["CMD", "nc", "-z", "localhost", "1883"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     mem_limit: 512m
     cpus: 0.5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   zigbee2mqtt:
     image: koenkk/zigbee2mqtt:latest
@@ -31,10 +40,14 @@ services:
       - ${DATA_DIR:-./zigbee2mqtt/data}:/app/data
       - ${CONFIG_DIR:-./zigbee2mqtt/config}:/app/config
       - /run/dbus:/run/dbus:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     ports:
       - "${Z2M_UI_PORT:-8080}:8080"
     environment:
       - TZ=${TZ:-America/Toronto}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC=${MQTT_BASE_TOPIC:-zigbee2mqtt}
       - ZIGBEE2MQTT_CONFIG_MQTT_SERVER=${MQTT_SERVER:-mqtt://mosquitto:1883}
       - ZIGBEE2MQTT_CONFIG_SERIAL_PORT=${Z2M_SERIAL_PORT:-tcp://slzb-mrw10u.local:6053}
@@ -59,7 +72,11 @@ services:
       start_period: 30s
     mem_limit: 1024m
     cpus: 1.0
-
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
 networks:

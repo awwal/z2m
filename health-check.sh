@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Function to print status
+
 print_status() {
     local status=$1
     local message=$2
@@ -46,7 +46,7 @@ print_status() {
     fi
 }
 
-# Function to check container status
+
 check_containers() {
     echo -e "${BLUE}=== Container Status ===${NC}"
 
@@ -71,7 +71,6 @@ check_containers() {
     fi
 }
 
-# Function to check service health
 check_service_health() {
     echo -e "\n${BLUE}=== Service Health ===${NC}"
 
@@ -102,7 +101,6 @@ check_service_health() {
     fi
 }
 
-# Function to check connectivity
 check_connectivity() {
     echo -e "\n${BLUE}=== Network Connectivity ===${NC}"
 
@@ -127,7 +125,6 @@ check_connectivity() {
     fi
 }
 
-# Function to check resource usage
 check_resources() {
     echo -e "\n${BLUE}=== Resource Usage ===${NC}"
 
@@ -136,7 +133,6 @@ check_resources() {
     fi
 }
 
-# Function to check logs for errors
 check_logs() {
     echo -e "\n${BLUE}=== Recent Errors in Logs ===${NC}"
 
@@ -161,7 +157,6 @@ check_logs() {
     fi
 }
 
-# Function to run all checks
 run_all_checks() {
     check_containers || return 1
     check_service_health
@@ -172,7 +167,6 @@ run_all_checks() {
     echo -e "\n${BLUE}=== Health Check Complete ===${NC}"
 }
 
-# Function for watch mode
 watch_health() {
     while true; do
         clear

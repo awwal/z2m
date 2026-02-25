@@ -1,0 +1,24 @@
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+
+# Backups
+backups/
+
+# Zigbee2MQTT runtime data
+zigbee2mqtt/data/
+zigbee2mqtt/config/state.json
+zigbee2mqtt/config/log/
+
+# Mosquitto runtime data and logs
+mosquitto/data/
+mosquitto/log/
+
+# System files
+.DS_Store
+Thumbs.db

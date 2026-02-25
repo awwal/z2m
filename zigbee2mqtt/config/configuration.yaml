@@ -1,10 +1,9 @@
-homeassistant: false
-permit_join: true
+homeassistant: true
+permit_join: false
 
 mqtt:
   base_topic: zigbee2mqtt
   server: 'mqtt://mosquitto:1883'
-  # user and password removed for passwordless operation
   version: 4
   client_id: zigbee2mqtt
   keepalive: 60
@@ -12,7 +11,7 @@ mqtt:
 
 serial:
   # SLZB-MRW10U uses Silicon Labs EFR32 chip with EZSP protocol over TCP
-  # This adapter communicates over network via mDNS address
+
   port: 'tcp://slzb-mrw10u.local:6053'
   baudrate: 115200
 
@@ -21,11 +20,13 @@ advanced:
   # Channel: Use 11 for North America, or change as needed for your region
   channel: 11
 
+  # Network key for Zigbee network security
+  network_key: GENERATE
   # PAN ID - Random value for the personal area network
-  pan_id: 6754
+  pan_id: GENERATE
 
   # Extended PAN ID for IEEE 802.15.4 addressing
-  ext_pan_id: [0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd]
+  ext_pan_id: GENERATE
 
   # Transmit power in dBm
   transmit_power: 5
@@ -36,8 +37,7 @@ advanced:
   # Database - stores device information
   database_path: /app/data/database.db
 
-  # Network key for Zigbee network security
-  network_key: [1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 13]
+
 
   # Cache devices in memory for faster device queries
   cache_enabled: true
