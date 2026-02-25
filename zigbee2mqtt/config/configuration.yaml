@@ -7,8 +7,13 @@ permit_join: false
 # Device-specific settings
 devices: !include devices.yaml
 
+# Serial adapter for SLZB-MRW10U
+serial:
+  adapter: zstack
+
 # Advanced settings
 advanced:
+  transmit_power: 20
   # Database stores device information
   database_path: /app/data/database.db
   cache_enabled: true
