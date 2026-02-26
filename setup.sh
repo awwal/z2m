@@ -5,15 +5,12 @@ echo "Setting up Zigbee2MQTT and matter environment..."
 
 # Create directories
 mkdir -p mosquitto/{config,data,log}
-mkdir -p zigbee2mqtt/{config,data/ota}
+mkdir -p zigbee2mqtt/data/ota
 mkdir -p matter-server/data
 
-# Ensure files exist (if they don't already)
-touch mosquitto/config/mosquitto.conf
-touch zigbee2mqtt/config/configuration.yaml
-touch zigbee2mqtt/config/devices.yaml
-
-cp .env.example .env
+# Ensure files exist from examples if they don't already
+[ ! -f mosquitto/config/mosquitto.conf ] && touch mosquitto/config/mosquitto.conf
+[ ! -f .env ] && cp .env.example .env
 
 echo "✓ Directories and files prepared"
 

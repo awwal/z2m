@@ -56,7 +56,6 @@ backup() {
 
     # Define paths to backup
     local z2m_data=${DATA_DIR:-./zigbee2mqtt/data}
-    local z2m_config=${CONFIG_DIR:-./zigbee2mqtt/config}
     local mosq_config=${MOSQUITTO_CONFIG_DIR:-./mosquitto/config}
     local mosq_data=${MOSQUITTO_DATA_DIR:-./mosquitto/data}
     local matter_data=${MATTER_DATA_DIR:-./matter-server/data}
@@ -64,7 +63,6 @@ backup() {
     # Create backup archive
     tar -czf "$BACKUP_FILE" \
         --exclude="${z2m_data}/ota/*.bin" \
-        "$z2m_config" \
         "$z2m_data" \
         "$mosq_config" \
         "$mosq_data" \
@@ -97,7 +95,7 @@ restore() {
     docker compose down 2>/dev/null || true
     
     tar -czf "${BACKUP_DIR}/pre_restore_backup_${TIMESTAMP}.tar.gz" \
-        "${CONFIG_DIR:-./zigbee2mqtt/config}" "${DATA_DIR:-./zigbee2mqtt/data}" \
+        "${DATA_DIR:-./zigbee2mqtt/data}" \
         "${MATTER_DATA_DIR:-./matter-server/data}" 2>/dev/null || true
 
     print_message "info" "Extracting backup..."
@@ -191,7 +189,7 @@ EXAMPLES:
     $0 cleanup 30
 
 BACKUP INCLUDES:
-    - Zigbee2MQTT configuration and data
+    - Zigbee2MQTT data (includes config)
     - Mosquitto configuration and data
     - Matter server data
     - docker-compose.yml
