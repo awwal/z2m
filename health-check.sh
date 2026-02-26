@@ -58,7 +58,6 @@ check_containers() {
     local mosquitto_status=$(docker compose ps mosquitto --format '{{.State}}' 2>/dev/null || echo "unknown")
     local z2m_status=$(docker compose ps zigbee2mqtt --format '{{.State}}' 2>/dev/null || echo "unknown")
     local matter_status=$(docker compose ps matter-server --format '{{.State}}' 2>/dev/null || echo "unknown")
-    local otbr_status=$(docker compose ps otbr --format '{{.State}}' 2>/dev/null || echo "unknown")
 
     if [ "$mosquitto_status" = "running" ]; then
         print_status "ok" "Mosquitto is running"
@@ -76,12 +75,6 @@ check_containers() {
         print_status "ok" "Matter Server is running"
     else
         print_status "error" "Matter Server is not running (state: $matter_status)"
-    fi
-
-    if [ "$otbr_status" = "running" ]; then
-        print_status "ok" "OTBR is running"
-    else
-        print_status "error" "OTBR is not running (state: $otbr_status)"
     fi
 }
 
@@ -120,13 +113,6 @@ check_service_health() {
     else
         print_status "error" "Matter Server is not responding (port 5580)"
     fi
-
-    # Check OTBR Web UI
-    if curl -s "http://localhost:80" > /dev/null 2>&1; then
-        print_status "ok" "OTBR Web UI is accessible (port 80)"
-    else
-        print_status "warn" "OTBR Web UI is not accessible (port 80)"
-    fi
 }
 
 check_connectivity() {
@@ -150,14 +136,6 @@ check_connectivity() {
         print_status "ok" "Zigbee Coordinator ($coordinator_host) is reachable"
     else
         print_status "warn" "Zigbee Coordinator ($coordinator_host) is not reachable"
-    fi
-
-    # Check Matter Coordinator
-    local matter_coordinator_host=${MATTER_COORDINATOR_ADDR:-slzb-06u.local}
-    if docker exec otbr ping -c 1 "$matter_coordinator_host" &> /dev/null; then
-        print_status "ok" "Matter Coordinator ($matter_coordinator_host) is reachable"
-    else
-        print_status "warn" "Matter Coordinator ($matter_coordinator_host) is not reachable"
     fi
 }
 
@@ -200,16 +178,6 @@ check_logs() {
         done
     else
         print_status "ok" "No recent errors in Matter Server logs"
-    fi
-
-    local otbr_errors=$(docker logs --tail 50 otbr 2>/dev/null | grep -iE "error|failed" | head -3)
-    if [ -n "$otbr_errors" ]; then
-        print_status "warn" "OTBR recent errors:"
-        echo "$otbr_errors" | while read -r line; do
-            echo "  $line"
-        done
-    else
-        print_status "ok" "No recent errors in OTBR logs"
     fi
 }
 

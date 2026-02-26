@@ -91,19 +91,6 @@ services:
     environment:
       - TZ=${TZ:-America/Toronto}
 
-  otbr:
-    image: openthread/otbr:latest
-    container_name: otbr
-    restart: unless-stopped
-    network_mode: host
-    privileged: true
-    volumes:
-      - ./otbr/data:/data
-    environment:
-      - TZ=${TZ:-America/Toronto}
-    command: >
-      spinel+tcp://${MATTER_COORDINATOR_ADDR:-slzb-06u.local}:${MATTER_COORDINATOR_PORT:-6638}
-
 
 networks:
   zigbee-network:
