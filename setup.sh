@@ -1,11 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "Setting up Zigbee2MQTT environment..."
+echo "Setting up Zigbee2MQTT and matter environment..."
 
 # Create directories
 mkdir -p mosquitto/{config,data,log}
 mkdir -p zigbee2mqtt/{config,data/ota}
+mkdir -p matter-server/data
+mkdir -p otbr/data
 
 # Ensure files exist (if they don't already)
 touch mosquitto/config/mosquitto.conf
