@@ -84,11 +84,26 @@ backup() {
         exclude_args=("--exclude=${z2m_data}/ota/*.bin")
     fi
 
-    if tar "${exclude_args[@]}" "${tar_args[@]}" 2>/dev/null; then
+    # Log files that will be included in the backup
+    print_message "info" "Including in backup:"
+    for arg in "${tar_args[@]:2}"; do
+        print_message "info" " - $arg"
+    done
+    if [ ${#exclude_args[@]} -gt 0 ]; then
+        print_message "info" "Excluding from backup:"
+        for arg in "${exclude_args[@]}"; do
+            print_message "info" " - ${arg#--exclude=}"
+        done
+    fi
+
+    if tar "${exclude_args[@]}" "${tar_args[@]}"; then
         local backup_size=$(du -h "$BACKUP_FILE" | cut -f1)
         print_message "success" "Backup completed ($backup_size)"
     else
         print_message "error" "Backup failed"
+        print_message "warn" "If permission denied on matter-server/data, run this for permanent fix:"
+        print_message "info" "  sudo chown -R \$USER:\$(id -g) ./matter-server/data"
+        print_message "info" "Then run backup again"
         return 1
     fi
 }
@@ -210,11 +225,26 @@ BACKUP INCLUDES:
     - docker-compose.yml
     - .env files
 
+PERMISSION HANDLING (Matter Server):
+    The matter-server container creates files with restricted permissions.
+    If you get "Permission denied" errors during backup:
+
+    PERMANENT FIX (recommended):
+      sudo chown -R $USER:$(id -g) ./matter-server/data
+
+    After running the above once, backups will work normally without errors.
+
+    TEMPORARY WORKAROUND (one-time use):
+      sudo ./backup-restore.sh backup
+      sudo ./backup-restore.sh restore <backup_file>
+
 NOTES:
     - Backups are stored in: $BACKUP_DIR
     - Pre-restore backups are automatically created
     - OTA binary files are excluded to save space
     - Always verify backups before critical restores
+    - matter-server/data should be in .gitignore (excluded from git)
+      but IS included in backups
 
 EOF
 }
