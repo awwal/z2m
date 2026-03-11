@@ -81,6 +81,7 @@ services:
     image: ghcr.io/home-assistant-libs/python-matter-server:stable
     container_name: matter-server
     restart: unless-stopped
+    # Port 5580 is used for the WebSocket API (already exposed via host mode)
     security_opt:
       - apparmor:unconfined
     volumes:

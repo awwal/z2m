@@ -12,11 +12,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Configuration
-BACKUP_DIR="./backups"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="${BACKUP_DIR}/z2m_backup_${TIMESTAMP}.tar.gz"
-
 # Load .env if it exists
 if [ -f .env ]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
@@ -25,6 +20,11 @@ if [ -f .env ]; then
         fi
     done < .env
 fi
+
+# Configuration
+BACKUP_DIR="${BACKUP_DIR:-./backups}"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/z2m_backup_${TIMESTAMP}.tar.gz"
 
 # Ensure backup directory exists
 mkdir -p "$BACKUP_DIR"
@@ -61,21 +61,36 @@ backup() {
     local matter_data=${MATTER_DATA_DIR:-./matter-server/data}
 
     # Create backup archive
-    tar -czf "$BACKUP_FILE" \
-        --exclude="${z2m_data}/ota/*.bin" \
-        "$z2m_data" \
-        "$mosq_config" \
-        "$mosq_data" \
-        "$matter_data" \
-        docker-compose.yml \
-        .env* \
-        2>/dev/null || {
-            print_message "error" "Backup failed"
-            return 1
-        }
+    local tar_args=("-czf" "$BACKUP_FILE")
+    
+    # Add files and directories if they exist
+    for path in "$z2m_data" "$mosq_config" "$mosq_data" "$matter_data" "docker-compose.yml"; do
+        if [ -e "$path" ]; then
+            tar_args+=("$path")
+        fi
+    done
 
-    local backup_size=$(du -h "$BACKUP_FILE" | cut -f1)
-    print_message "success" "Backup completed ($backup_size)"
+    # Add .env files if any exist
+    local env_files=(.env*)
+    for env_file in "${env_files[@]}"; do
+        if [ -f "$env_file" ]; then
+            tar_args+=("$env_file")
+        fi
+    done
+
+    # Exclude OTA binaries if z2m_data exists
+    local exclude_args=()
+    if [ -d "$z2m_data" ]; then
+        exclude_args=("--exclude=${z2m_data}/ota/*.bin")
+    fi
+
+    if tar "${exclude_args[@]}" "${tar_args[@]}" 2>/dev/null; then
+        local backup_size=$(du -h "$BACKUP_FILE" | cut -f1)
+        print_message "success" "Backup completed ($backup_size)"
+    else
+        print_message "error" "Backup failed"
+        return 1
+    fi
 }
 
 # Function to restore from backup
