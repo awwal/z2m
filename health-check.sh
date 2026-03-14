@@ -57,7 +57,6 @@ check_containers() {
 
     local mosquitto_status=$(docker compose ps mosquitto --format '{{.State}}' 2>/dev/null || echo "unknown")
     local z2m_status=$(docker compose ps zigbee2mqtt --format '{{.State}}' 2>/dev/null || echo "unknown")
-    local matter_status=$(docker compose ps matter-server --format '{{.State}}' 2>/dev/null || echo "unknown")
 
     if [ "$mosquitto_status" = "running" ]; then
         print_status "ok" "Mosquitto is running"
@@ -69,12 +68,6 @@ check_containers() {
         print_status "ok" "Zigbee2MQTT is running"
     else
         print_status "error" "Zigbee2MQTT is not running (state: $z2m_status)"
-    fi
-
-    if [ "$matter_status" = "running" ]; then
-        print_status "ok" "Matter Server is running"
-    else
-        print_status "error" "Matter Server is not running (state: $matter_status)"
     fi
 }
 
@@ -105,13 +98,6 @@ check_service_health() {
         print_status "ok" "Zigbee2MQTT UI is accessible (port ${ui_port})"
     else
         print_status "error" "Zigbee2MQTT UI is not accessible (port ${ui_port})"
-    fi
-
-    # Check Matter Server
-    if curl -s "http://localhost:5580" > /dev/null 2>&1; then
-        print_status "ok" "Matter Server is responding (port 5580)"
-    else
-        print_status "error" "Matter Server is not responding (port 5580)"
     fi
 }
 
@@ -158,26 +144,6 @@ check_logs() {
         done
     else
         print_status "ok" "No recent errors in Mosquitto logs"
-    fi
-
-    local z2m_errors=$(docker logs --tail 50 zigbee2mqtt 2>/dev/null | grep -iE "error|failed" | head -3)
-    if [ -n "$z2m_errors" ]; then
-        print_status "warn" "Zigbee2MQTT recent errors:"
-        echo "$z2m_errors" | while read -r line; do
-            echo "  $line"
-        done
-    else
-        print_status "ok" "No recent errors in Zigbee2MQTT logs"
-    fi
-
-    local matter_errors=$(docker logs --tail 50 matter-server 2>/dev/null | grep -iE "error|failed" | head -3)
-    if [ -n "$matter_errors" ]; then
-        print_status "warn" "Matter Server recent errors:"
-        echo "$matter_errors" | while read -r line; do
-            echo "  $line"
-        done
-    else
-        print_status "ok" "No recent errors in Matter Server logs"
     fi
 }
 

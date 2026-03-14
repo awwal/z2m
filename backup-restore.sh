@@ -58,13 +58,12 @@ backup() {
     local z2m_data=${DATA_DIR:-./zigbee2mqtt/data}
     local mosq_config=${MOSQUITTO_CONFIG_DIR:-./mosquitto/config}
     local mosq_data=${MOSQUITTO_DATA_DIR:-./mosquitto/data}
-    local matter_data=${MATTER_DATA_DIR:-./matter-server/data}
 
     # Create backup archive
     local tar_args=("-czf" "$BACKUP_FILE")
     
     # Add files and directories if they exist
-    for path in "$z2m_data" "$mosq_config" "$mosq_data" "$matter_data" "docker-compose.yml"; do
+    for path in "$z2m_data" "$mosq_config" "$mosq_data" "docker-compose.yml"; do
         if [ -e "$path" ]; then
             tar_args+=("$path")
         fi
@@ -101,9 +100,6 @@ backup() {
         print_message "success" "Backup completed ($backup_size)"
     else
         print_message "error" "Backup failed"
-        print_message "warn" "If permission denied on matter-server/data, run this for permanent fix:"
-        print_message "info" "  sudo chown -R \$USER:\$(id -g) ./matter-server/data"
-        print_message "info" "Then run backup again"
         return 1
     fi
 }
@@ -125,8 +121,7 @@ restore() {
     docker compose down 2>/dev/null || true
     
     tar -czf "${BACKUP_DIR}/pre_restore_backup_${TIMESTAMP}.tar.gz" \
-        "${DATA_DIR:-./zigbee2mqtt/data}" \
-        "${MATTER_DATA_DIR:-./matter-server/data}" 2>/dev/null || true
+        "${DATA_DIR:-./zigbee2mqtt/data}" 2>/dev/null || true
 
     print_message "info" "Extracting backup..."
     if tar -xzf "$backup_file"; then
@@ -221,30 +216,15 @@ EXAMPLES:
 BACKUP INCLUDES:
     - Zigbee2MQTT data (includes config)
     - Mosquitto configuration and data
-    - Matter server data
     - docker-compose.yml
     - .env files
 
-PERMISSION HANDLING (Matter Server):
-    The matter-server container creates files with restricted permissions.
-    If you get "Permission denied" errors during backup:
-
-    PERMANENT FIX (recommended):
-      sudo chown -R $USER:$(id -g) ./matter-server/data
-
-    After running the above once, backups will work normally without errors.
-
-    TEMPORARY WORKAROUND (one-time use):
-      sudo ./backup-restore.sh backup
-      sudo ./backup-restore.sh restore <backup_file>
 
 NOTES:
     - Backups are stored in: $BACKUP_DIR
     - Pre-restore backups are automatically created
     - OTA binary files are excluded to save space
     - Always verify backups before critical restores
-    - matter-server/data should be in .gitignore (excluded from git)
-      but IS included in backups
 
 EOF
 }

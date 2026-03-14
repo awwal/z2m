@@ -17,9 +17,6 @@ zigbee2mqtt/data/
 mosquitto/data/
 mosquitto/log/
 
-# Matter server runtime data
-matter-server/data/
-
 # System files
 .DS_Store
 Thumbs.db
